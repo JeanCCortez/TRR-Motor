@@ -18,16 +18,31 @@ def calcular_D_A(z1, z2):
     return ((299792.458 / 70.0) * integral / (1 + z2)) * 3.086e22
 
 # ==========================================
-# FUNÇÃO PARA LIMPAR OS DADOS
+# FUNÇÃO PARA LIMPAR OS DADOS E ZERAR CAIXAS
 # ==========================================
 def limpar_dados():
-    chaves = ['d_rad', 'd_vobs', 'd_vgas', 'd_vdisk', 'd_vbulge', 'o_zl', 'o_zs', 'o_mest', 'o_theta', 'o_cluster', 'res_dyn', 'res_opt']
-    for chave in chaves:
-        if chave in st.session_state:
-            del st.session_state[chave]
+    # 1. Apaga os relatórios da tela
+    if 'res_dyn' in st.session_state:
+        del st.session_state['res_dyn']
+    if 'res_opt' in st.session_state:
+        del st.session_state['res_opt']
+        
+    # 2. Força "Zeros" em todas as caixas de Dinâmica
+    st.session_state.d_rad = 0.0
+    st.session_state.d_vobs = 0.0
+    st.session_state.d_vgas = 0.0
+    st.session_state.d_vdisk = 0.0
+    st.session_state.d_vbulge = 0.0
+    
+    # 3. Força "Zeros" em todas as caixas de Óptica
+    st.session_state.o_zl = 0.0
+    st.session_state.o_zs = 0.0
+    st.session_state.o_mest = 0.0
+    st.session_state.o_theta = 0.0
+    st.session_state.o_cluster = False
 
 # ==========================================
-# GERADORES DE PDF (TEXTO LIMPO SEM ACENTOS PARA EVITAR ERROS DE SERVIDOR)
+# GERADORES DE PDF (TEXTO LIMPO SEM ACENTOS)
 # ==========================================
 def gerar_pdf_dinamica(rad, vobs, vgas, vdisk, vbulge, vtrr, prec, ml_disk, ml_bulge):
     pdf = FPDF()
@@ -111,8 +126,8 @@ confirmando matematicamente a unificacao cosmica da teoria.
 LANG = {
     "PT": {
         "title": "🌌 Motor Cosmológico TRR", "rad": "Raio observado (kpc)", "vobs": "Velocidade Obs (km/s)", "vgas": "Velocidade Gás (km/s)", "vdisk": "Veloc. Disco (km/s)", "vbulge": "Veloc. Haste/Bojo (km/s)", 
-        "calc": "🚀 Processar TRR", "clear": "🧹 Limpar Dados", "zl": "Redshift Lente (z_L)", "zs": "Redshift Fonte (z_S)", "mest": "Massa Estelar (10^11 M_sol)", "theta": "Anel Einstein (arcsec)", 
-        "cluster": "Aglomerado Gigante com Gás?", "tab1": "📊 Dinâmica Galáctica", "tab2": "👁️ Óptica Cosmológica", "pdf_btn": "📄 Baixar Relatório PDF", "details": "📚 Ver Relatório Detalhado (Métodos e Constantes)",
+        "calc": "🚀 Processar TRR", "clear": "🧹 Limpar Tudo", "zl": "Redshift Lente (z_L)", "zs": "Redshift Fonte (z_S)", "mest": "Massa Estelar (10^11 M_sol)", "theta": "Anel Einstein (arcsec)", 
+        "cluster": "Aglomerado Gigante com Gás?", "tab1": "📊 Dinâmica Galáctica", "tab2": "👁️ Óptica Cosmológica", "pdf_btn": "📄 Baixar / Compartilhar PDF", "details": "📚 Ver Relatório Detalhado (Métodos e Constantes)",
         "ml_disk": "M/L Disco", "ml_bulge": "M/L Bojo", "v_trr": "Previsão TRR", "v_obs": "Veloc. Telescópio", "precision": "Precisão de Acerto",
         "mest_opt": "Massa Otimizada", "eta_c": "Índice de Cortez (η_C)", "theta_trr": "Desvio TRR", "theta_obs": "Desvio Telescópio",
         "exp_dyn": "A constante β (0.028006) interagiu com a geometria da galáxia gerando o escudo topológico. A curva de velocidade foi sustentada respeitando a matéria bariônica pura, sem matéria escura.",
@@ -120,15 +135,14 @@ LANG = {
     },
     "EN": {
         "title": "🌌 TRR Cosmological Engine", "rad": "Observed Radius (kpc)", "vobs": "Obs Velocity (km/s)", "vgas": "Gas Velocity (km/s)", "vdisk": "Disk Velocity (km/s)", "vbulge": "Bar/Bulge Vel. (km/s)", 
-        "calc": "🚀 Process TRR", "clear": "🧹 Clear Data", "zl": "Lens Redshift (z_L)", "zs": "Source Redshift (z_S)", "mest": "Stellar Mass (10^11 M_sol)", "theta": "Einstein Ring (arcsec)", 
-        "cluster": "Giant Gas Cluster?", "tab1": "📊 Galactic Dynamics", "tab2": "👁️ Cosmological Optics", "pdf_btn": "📄 Download PDF Report", "details": "📚 View Detailed Report (Methods & Constants)",
+        "calc": "🚀 Process TRR", "clear": "🧹 Clear All", "zl": "Lens Redshift (z_L)", "zs": "Source Redshift (z_S)", "mest": "Stellar Mass (10^11 M_sol)", "theta": "Einstein Ring (arcsec)", 
+        "cluster": "Giant Gas Cluster?", "tab1": "📊 Galactic Dynamics", "tab2": "👁️ Cosmological Optics", "pdf_btn": "📄 Download / Share PDF", "details": "📚 View Detailed Report (Methods & Constants)",
         "ml_disk": "M/L Disk", "ml_bulge": "M/L Bulge", "v_trr": "TRR Prediction", "v_obs": "Telescope Vel.", "precision": "Accuracy",
         "mest_opt": "Optimized Mass", "eta_c": "Cortez Index (η_C)", "theta_trr": "TRR Deflection", "theta_obs": "Telescope Deflection",
         "exp_dyn": "The β constant (0.028006) interacted with the galaxy's geometry creating a topological shield. The velocity curve was sustained respecting pure baryonic matter, without dark matter.",
         "exp_opt": "Light suffered a phase delay crossing the viscous vacuum. The Cortez Index amplified the light deflection, eliminating the mathematical need for Dark Halos."
     }
 }
-# Preenchendo os outros idiomas com EN como base para garantir o funcionamento estrutural
 for lang in ["ES", "FR", "DE", "IT", "ZH", "RU"]:
     LANG[lang] = LANG["EN"]
 
