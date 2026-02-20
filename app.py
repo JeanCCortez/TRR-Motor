@@ -24,7 +24,7 @@ def calcular_D_A(z1, z2):
     return ((299792.458 / 70.0) * integral / (1 + z2)) * 3.086e22
 
 # ==========================================
-# DICIONÁRIO ABSOLUTO (100% MAPEADO)
+# DICIONÁRIO ABSOLUTO
 # ==========================================
 LANG = {
     "PT": {
@@ -228,16 +228,13 @@ def criar_grafico_stream(raios, arrasto, cisalhamento, limite):
         return tmp.name
 
 # ==========================================
-# GERADOR UNIVERSAL DE PDF (RIGOROSO IDIOMA)
+# GERADOR UNIVERSAL DE PDF
 # ==========================================
 def gerar_pdf(modulo, dict_dados, L_original):
-    # Regra Implacável: Chinês e Russo exportam PDF em Inglês para não quebrar a fonte. Demais exportam localmente.
     L_pdf = LANG["EN"] if L_original["code"] in ["ZH", "RU"] else L_original
-    
     pdf = FPDF()
     pdf.add_page()
     
-    # Cabeçalho 100% dinâmico
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(0, 10, txt=L_pdf["pdf_h1"], ln=True, align='C')
     pdf.set_font("Arial", 'I', 10)
@@ -254,8 +251,6 @@ def gerar_pdf(modulo, dict_dados, L_original):
     pdf.ln(5)
     
     pdf.set_font("Arial", size=11)
-    
-    # Prepara o formatador string 'loc_str' no idioma do PDF se for o Módulo 4
     if modulo == "str":
         loc_str_pdf = f"[{dict_dados['gap_start']:.1f} kpc - {dict_dados['gap_end']:.1f} kpc]" if dict_dados['has_gap'] else L_pdf["no_gap"]
 
@@ -281,14 +276,13 @@ def gerar_pdf(modulo, dict_dados, L_original):
         pdf.image(img_path, x=20 if modulo != "str" else 15, w=170 if modulo != "str" else 180)
         os.unlink(img_path)
     
-    # Rodapé 100% dinâmico
     pdf.set_y(-30)
     pdf.set_font("Arial", 'I', 8)
     pdf.cell(0, 10, txt=L_pdf["pdf_footer"], align='C', ln=True)
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # ==========================================
-# INTERFACE DO STREAMLIT (4 ABAS 100% TRADUZIDAS)
+# INTERFACE DO STREAMLIT (4 ABAS)
 # ==========================================
 st.set_page_config(page_title="Motor TRR", layout="centered")
 
@@ -334,7 +328,7 @@ else:
         v_bulge = st.number_input(L["vbulge"], min_value=0.0, format="%.2f", step=10.0, key="d_vbulge")
 
         colA, colB = st.columns(2)
-        if colA.button(L["calc"], type="primary", use_container_width=True, key="b1"):
+        if colA.button(L["calc"], type="primary", use_container_width=True, key="btn_calc_dyn"):
             if rad > 0 and v_obs > 0:
                 melhor_erro, melhor_v_trr, v_bar_pura = float('inf'), 0, 0
                 for ml_x in range(10, 101):
@@ -347,12 +341,12 @@ else:
                     erro = abs(g_obs - g_trr) / g_obs
                     if erro < melhor_erro: melhor_erro, melhor_v_trr, v_bar_pura = erro, math.sqrt((g_trr * rad * 3.086e19) / 1e6), math.sqrt(v_bar_sq) 
                 st.session_state['res_dyn'] = {'vtrr': melhor_v_trr, 'prec': max(0, 100 - (melhor_erro*100)), 'vbar': v_bar_pura, 'vobs': v_obs, 'gap': v_obs - v_bar_pura}
-        colB.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="c1")
+        colB.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="btn_clr_dyn")
         if 'res_dyn' in st.session_state:
             res = st.session_state['res_dyn']
             st.success(f"**{L['precision']}:** {res['prec']:.2f}%")
             with st.expander(L["details"]): st.info(L["rep_dyn_text"].format(**res))
-            st.download_button(L["pdf_btn"], data=gerar_pdf("dyn", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True)
+            st.download_button(L["pdf_btn"], data=gerar_pdf("dyn", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True, key="pdf_dyn")
 
     # --- ABA 2: ÓPTICA ---
     with aba2:
@@ -365,7 +359,7 @@ else:
         is_cluster = st.checkbox(L["cluster"], key="o_cluster")
 
         colC, colD = st.columns(2)
-        if colC.button(L["calc"], type="primary", use_container_width=True, key="b2"):
+        if colC.button(L["calc"], type="primary", use_container_width=True, key="btn_calc_opt"):
             if zl > 0 and zs > zl and theta > 0 and mest > 0:
                 D_L, D_S, D_LS = calcular_D_A(0, zl), calcular_D_A(0, zs), calcular_D_A(zl, zs)
                 melhor_erro, melhor_theta_trr, t_bar_pura, melhor_etac = float('inf'), 0, 0, 0
@@ -378,12 +372,12 @@ else:
                     erro = abs(theta - theta_trr) / theta
                     if erro < melhor_erro: melhor_erro, melhor_theta_trr, t_bar_pura, melhor_etac = erro, theta_trr, theta_bar_rad * 206264.806, eta_C
                 st.session_state['res_opt'] = {'ttrr': melhor_theta_trr, 'prec': max(0, 100 - (melhor_erro*100)), 'tbar': t_bar_pura, 'tobs': theta, 'etac': melhor_etac}
-        colD.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="c2")
+        colD.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="btn_clr_opt")
         if 'res_opt' in st.session_state:
             res = st.session_state['res_opt']
             st.success(f"**{L['precision']}:** {res['prec']:.2f}%")
             with st.expander(L["details"]): st.info(L["rep_opt_text"].format(**res))
-            st.download_button(L["pdf_btn"], data=gerar_pdf("opt", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True)
+            st.download_button(L["pdf_btn"], data=gerar_pdf("opt", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True, key="pdf_opt")
 
     # --- ABA 3: PREVISÃO DE REDSHIFT ---
     with aba3:
@@ -395,7 +389,7 @@ else:
         r_cluster = st.checkbox(L["cluster"], key="r_cluster")
 
         colE, colF = st.columns(2)
-        if colE.button(L["calc"], type="primary", use_container_width=True, key="b3"):
+        if colE.button(L["calc"], type="primary", use_container_width=True, key="btn_calc_red"):
             if r_zl > 0 and r_theta > 0 and r_mest > 0:
                 D_L = calcular_D_A(0, r_zl)
                 M_bar_kg = (r_mest * (7.0 if r_cluster else 1.0)) * 1e11 * M_SOL 
@@ -410,12 +404,12 @@ else:
                     erro = abs(r_theta - theta_trr) / r_theta
                     if erro < melhor_erro: melhor_erro, zs_pred = erro, zs_test
                 st.session_state['res_red'] = {'zs_pred': zs_pred, 'prec': max(0, 100 - (melhor_erro*100)), 'tobs': r_theta}
-        colF.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="c3")
+        colF.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="btn_clr_red")
         if 'res_red' in st.session_state:
             res = st.session_state['res_red']
             st.success(f"**{L['precision']}:** {res['prec']:.2f}% | **{L['pred_zs']}:** {res['zs_pred']:.4f}")
             with st.expander(L["details"]): st.info(L["rep_red_text"].format(**res))
-            st.download_button(L["pdf_btn"], data=gerar_pdf("red", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True)
+            st.download_button(L["pdf_btn"], data=gerar_pdf("red", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True, key="pdf_red")
 
     # --- ABA 4: CORRENTES ESTELARES ---
     with aba4:
@@ -426,7 +420,7 @@ else:
         s_mbar = st.number_input(L["mest"], min_value=0.0, format="%.2f", step=1.0, key="s_mbar")
 
         colG, colH = st.columns(2)
-        if colG.button(L["calc"], type="primary", use_container_width=True, key="b4"):
+        if colG.button(L["calc"], type="primary", use_container_width=True, key="btn_calc_str"):
             if s_peri > 0 and s_apo > s_peri and s_mbar > 0:
                 raios_kpc = np.linspace(s_peri, s_apo, 500)
                 raios_m = raios_kpc * KPC_TO_M
@@ -446,10 +440,10 @@ else:
                     'raios': raios_kpc, 'arrasto': arrasto, 'cisal': cisal_norm, 'limite': limite_critico,
                     'has_gap': has_gap, 'gap_start': gap_start, 'gap_end': gap_end
                 }
-        colH.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="c4")
+        colH.button(L["clear"], on_click=limpar_dados, use_container_width=True, key="btn_clr_str")
         if 'res_str' in st.session_state:
             res = st.session_state['res_str']
             loc_str_ui = f"[{res['gap_start']:.1f} kpc - {res['gap_end']:.1f} kpc]" if res['has_gap'] else L["no_gap"]
             st.success(f"**{L['loc_gap']}:** {loc_str_ui}")
             with st.expander(L["details"]): st.info(L["rep_str_text"].format(loc_str=loc_str_ui, **res))
-            st.download_button(L["pdf_btn"], data=gerar_pdf("str", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True)
+            st.download_button(L["pdf_btn"], data=gerar_pdf("str", res, L), file_name="Report.pdf", mime="application/pdf", use_container_width=True, key="pdf_str")
