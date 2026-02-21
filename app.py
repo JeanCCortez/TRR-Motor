@@ -24,7 +24,7 @@ def calcular_D_A(z1, z2):
     return ((299792.458 / 70.0) * integral / (1 + z2)) * 3.086e22
 
 # ==========================================
-# DICIONÁRIO ABSOLUTO (SEM LOOPS, 100% EXPLICADO)
+# DICIONÁRIO ABSOLUTO (SEM LOOPS)
 # ==========================================
 LANG = {
     "PT": {
@@ -411,7 +411,7 @@ else:
             with st.expander(L["details"]): st.info(L["rep_opt_text"].format(**res))
             st.download_button(L["pdf_btn"], data=gerar_pdf("opt", res, L), file_name="Report_Optics.pdf", mime="application/pdf", use_container_width=True, key="p2")
 
-    # --- ABA 3: PREVISÃO DE REDSHIFT (FÍSICA TRR PURA - MASSA BARIÔNICA TOTAL) ---
+    # --- ABA 3: PREVISÃO DE REDSHIFT (FÍSICA TRR PURA - SEM TETO) ---
     with aba3:
         st.info(L["info_red"])
         c9, c10 = st.columns(2)
@@ -426,10 +426,11 @@ else:
                 D_L = calcular_D_A(0, r_zl)
                 melhor_erro, zs_pred = float('inf'), 0
                 
-                # A MASSA É ABSOLUTA (Sem cortes de abertura. A galáxia inteira atua no fluido espacial).
+                # A MASSA É ABSOLUTA E A BUSCA VAI ATÉ O LIMITE DO UNIVERSO
                 M_bar_kg = (r_mest * (7.0 if r_cluster else 1.0)) * 1e11 * M_SOL 
                 
-                for zs_test in np.arange(r_zl + 0.01, 50.0, 0.01):
+                # O Teto foi removido (agora vai até z = 50.0, além do universo observável)
+                for zs_test in np.arange(r_zl + 0.01, 50.0, 0.05):
                     D_S, D_LS = calcular_D_A(0, zs_test), calcular_D_A(r_zl, zs_test)
                     if D_S <= 0: continue
                     theta_bar_rad = math.sqrt((4 * G * M_bar_kg) / (C**2) * (D_LS / (D_L * D_S)))
@@ -442,7 +443,25 @@ else:
                         melhor_erro = erro
                         zs_pred = zs_test
                 
-                z_vals = np.linspace(r_zl + 0.01, max(zs_pred * 1.5, r_zl + 1), 40)
+                # Refinamento fino da predição para maior precisão
+                best_coarse = zs_pred
+                melhor_erro = float('inf')
+                for zs_test in np.arange(max(r_zl + 0.01, best_coarse - 0.1), min(best_coarse + 0.1, 50.0), 0.005):
+                    D_S, D_LS = calcular_D_A(0, zs_test), calcular_D_A(r_zl, zs_test)
+                    if D_S <= 0: continue
+                    theta_bar_rad = math.sqrt((4 * G * M_bar_kg) / (C**2) * (D_LS / (D_L * D_S)))
+                    g_bar = (G * M_bar_kg) / ((theta_bar_rad * D_L)**2)
+                    fator_fase = 1.0 / (1.0 - math.exp(-math.sqrt(g_bar / A0)))
+                    eta_C = 1.0 + BETA * math.log(1 + r_zl)
+                    theta_trr = theta_bar_rad * math.sqrt(fator_fase) * eta_C * 206264.806
+                    erro = abs(r_theta - theta_trr) / r_theta
+                    if erro < melhor_erro: 
+                        melhor_erro = erro
+                        zs_pred = zs_test
+
+                # Limite do gráfico dinâmico (para não distorcer visualmente se der z=50)
+                limite_grafico = min(zs_pred * 1.5, 30.0) if zs_pred > 10 else zs_pred * 1.5
+                z_vals = np.linspace(r_zl + 0.01, max(limite_grafico, r_zl + 1), 40)
                 t_class, t_trr = [], []
                 for z in z_vals:
                     D_S, D_LS = calcular_D_A(0, z), calcular_D_A(r_zl, z)
@@ -501,4 +520,3 @@ else:
             st.success(f"**{L['loc_gap']}:** {loc_str_ui}")
             with st.expander(L["details"]): st.info(L["rep_str_text"].format(loc_str=loc_str_ui, **res))
             st.download_button(L["pdf_btn"], data=gerar_pdf("str", res, L), file_name="Report_Streams.pdf", mime="application/pdf", use_container_width=True, key="p4")
-
