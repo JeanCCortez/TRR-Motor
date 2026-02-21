@@ -429,7 +429,7 @@ else:
                 # A MASSA É ABSOLUTA (Sem cortes de abertura. A galáxia inteira atua no fluido espacial).
                 M_bar_kg = (r_mest * (7.0 if r_cluster else 1.0)) * 1e11 * M_SOL 
                 
-                for zs_test in np.arange(r_zl + 0.01, 10.0, 0.01):
+                for zs_test in np.arange(r_zl + 0.01, 50.0, 0.01):
                     D_S, D_LS = calcular_D_A(0, zs_test), calcular_D_A(r_zl, zs_test)
                     if D_S <= 0: continue
                     theta_bar_rad = math.sqrt((4 * G * M_bar_kg) / (C**2) * (D_LS / (D_L * D_S)))
@@ -501,3 +501,4 @@ else:
             st.success(f"**{L['loc_gap']}:** {loc_str_ui}")
             with st.expander(L["details"]): st.info(L["rep_str_text"].format(loc_str=loc_str_ui, **res))
             st.download_button(L["pdf_btn"], data=gerar_pdf("str", res, L), file_name="Report_Streams.pdf", mime="application/pdf", use_container_width=True, key="p4")
+
