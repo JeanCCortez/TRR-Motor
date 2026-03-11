@@ -101,7 +101,7 @@ LANG = {
         "prov_title": "🗂️ Источники данных", "prov_info": "Для обеспечения воспроизводимости этот двигатель обрабатывает данные из",
         "prov_warn": "⚠️ В этот двигатель не вводятся параметры темной материи.",
         "rad": "Радиус (кпк)", "vobs": "Скор. телескопа", "vgas": "Скор. газа", "vdisk": "Скор. диска", "vbulge": "Скор. бара",
-        "zl": "Redshift линзы", "zs": "Redshift ист.", "mest": "Полная масса (10^11)", "theta": "Кольцо (arcsec)", "cluster": "Скопление?",
+        "zl": "Redshift линзы", "zs": "Redshift ист.", "mest": "Полная massа (10^11)", "theta": "Кольцо (arcsec)", "cluster": "Скопление?",
         "r_peri": "Перицентр (кпк)", "r_apo": "Апоцентр (кпк)",
         "calc": "🚀 Начать аудит ТРО", "clear": "🧹 Очистить",
         "pdf_btn": "📄 Скачать отчет (PDF - EN)", "details": "📚 Технический отчет",
@@ -160,7 +160,6 @@ def criar_grafico_stream(raios, arrasto, cisalhamento, limite):
 # GERADOR DE PDF (HYBRID LOGIC: RU/ZH -> EN)
 # ==========================================
 def gerar_pdf(modulo, dict_dados, L_original):
-    # Regra de Negócio: Se o idioma for Russo ou Chinês, o PDF sai em Inglês.
     if L_original["code"] in ["ZH", "RU"]:
         L_pdf = LANG["EN"]
     else:
@@ -220,6 +219,7 @@ else:
     with st.sidebar:
         st.markdown(f"**{L['author_prefix']}:** Jean Cortez\n\n*{L['theory_name']}*")
         st.markdown("---")
+        # CORREÇÃO AQUI: Agora os textos da sidebar buscam as chaves traduzidas do dicionário L
         with st.expander(L["prov_title"], expanded=False):
             st.markdown(f"**{L['prov_info']}:**\n* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo\n\n*{L['prov_warn']}*")
         st.markdown("---")
@@ -230,7 +230,6 @@ else:
     st.title(L["title"])
     aba1, aba2, aba3, aba4 = st.tabs([L["tab1"], L["tab2"], L["tab3"], L["tab4"]])
 
-    # --- LÓGICA DE LIMPEZA ---
     def limpar_dados():
         for k in ['res_dyn', 'res_opt', 'res_red', 'res_str']:
             if k in st.session_state: del st.session_state[k]
@@ -280,7 +279,6 @@ else:
         r_zl = st.number_input(L["zl"], key="r_zl"); r_mest = st.number_input(L["mest"], key="r_mest"); r_theta = st.number_input(L["theta"], key="r_theta")
         if st.button(L["calc"], type="primary", key="b3"):
             if r_zl > 0:
-                # Busca simplificada para o exemplo completo
                 z_test = np.linspace(r_zl+0.1, 5.0, 100); r_D_L = calcular_D_A(0, r_zl)
                 r_M = r_mest * 1e11 * M_SOL
                 best_z, min_err = 0, float('inf')
