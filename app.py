@@ -32,9 +32,9 @@ LANG = {
         "title": "🌌 Motor Cosmológico TRR", "author_prefix": "Autor", "theory_name": "Teoria da Relatividade Referencial",
         "tab1": "📊 Dinâmica Galáctica", "tab2": "👁️ Óptica Cosmológica", "tab3": "🔭 Previsão de Redshift", "tab4": "☄️ Correntes Estelares",
         "prov_title": "🗂️ Proveniência de Dados", 
-        "prov_info": "Para garantir a reprodutibilidade, este motor processa dados de:",
-        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
+        "prov_info": "Para garantir a reprodutibilidade, este motor processa dados brutos de:",
         "prov_warn": "⚠️ Nenhum parâmetro ad-hoc de matéria escura é injetado aqui.",
+        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "rad": "Raio observado (kpc)", "vobs": "Veloc. Telescópio (km/s)", "vgas": "Velocidade Gás (km/s)", "vdisk": "Veloc. Disco (km/s)", "vbulge": "Veloc. Bojo (km/s)",
         "zl": "Redshift Lente (z_L)", "zs": "Redshift Fonte (z_S)", "mest": "Massa Fotométrica Total (10^11)", "theta": "Anel Einstein (arcsec)", "cluster": "Aglomerado Gigante?",
         "r_peri": "Pericentro da Corrente (kpc)", "r_apo": "Apocentro da Corrente (kpc)",
@@ -58,9 +58,9 @@ LANG = {
         "title": "🌌 RRT Cosmological Engine", "author_prefix": "Author", "theory_name": "Referential Relativity Theory",
         "tab1": "📊 Galactic Dynamics", "tab2": "👁️ Cosmological Optics", "tab3": "🔭 Redshift Prediction", "tab4": "☄️ Stellar Streams",
         "prov_title": "🗂️ Data Provenance", 
-        "prov_info": "To ensure reproducibility, this engine processes data from:",
-        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
+        "prov_info": "To ensure reproducibility, this engine processes raw data from:",
         "prov_warn": "⚠️ No ad-hoc dark matter parameters are injected here.",
+        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "rad": "Obs. Radius (kpc)", "vobs": "Telescope Vel. (km/s)", "vgas": "Gas Vel. (km/s)", "vdisk": "Disk Vel. (km/s)", "vbulge": "Bulge Vel. (km/s)",
         "zl": "Lens Redshift (z_L)", "zs": "Source Redshift (z_S)", "mest": "Total Photometric Mass (10^11)", "theta": "Einstein Ring (arcsec)", "cluster": "Giant Cluster?",
         "r_peri": "Stream Pericenter (kpc)", "r_apo": "Stream Apocenter (kpc)",
@@ -85,8 +85,8 @@ LANG = {
         "tab1": "📊 星系动力学", "tab2": "👁️ 宇宙光学", "tab3": "🔭 红移预测", "tab4": "☄️ 恒星流",
         "prov_title": "🗂️ 数据来源", 
         "prov_info": "为确保独立可重复性，本引擎处理以下原始数据：",
-        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "prov_warn": "⚠️ 本引擎未注入任何暗物质参数。",
+        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "rad": "观测半径 (kpc)", "vobs": "望远镜速度 (km/s)", "vgas": "气体速度", "vdisk": "星盘速度", "vbulge": "核球速度",
         "zl": "透镜红移 (z_L)", "zs": "光源红移 (z_S)", "mest": "光度质量 (10^11)", "theta": "爱因斯坦环 (arcsec)", "cluster": "巨型星系团？",
         "r_peri": "流近星点 (kpc)", "r_apo": "流远星点 (kpc)",
@@ -106,8 +106,8 @@ LANG = {
         "tab1": "📊 Динамика", "tab2": "👁️ Оптика", "tab3": "🔭 Прогноз Redshift", "tab4": "☄️ Потоки",
         "prov_title": "🗂️ Источники данных", 
         "prov_info": "Для обеспечения воспроизводимости этот двигатель обрабатывает данные из:",
-        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "prov_warn": "⚠️ В этот двигатель не вводятся параметры темной материи.",
+        "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "rad": "Радиус (кпк)", "vobs": "Скор. телескопа", "vgas": "Скор. газа", "vdisk": "Скор. диска", "vbulge": "Скор. бара",
         "zl": "Redshift линзы", "zs": "Redshift ист.", "mest": "Полная массa (10^11)", "theta": "Кольцо (arcsec)", "cluster": "Скопление?",
         "r_peri": "Перицентр (кпк)", "r_apo": "Апоцентр (кпк)",
@@ -218,28 +218,25 @@ if st.session_state['idioma_selecionado'] is None:
         st.session_state['idioma_selecionado'] = idioma_opcoes[escolha]
         st.rerun()
 else:
-    # Lógica de tradução global
     L = LANG[st.session_state['idioma_selecionado']]
     
-    # Renderização da BARRA LATERAL (Agora 100% Dinâmica)
     with st.sidebar:
         st.markdown(f"### **{L['author_prefix']}:** Jean Cortez")
         st.caption(f"*{L['theory_name']}*")
         st.divider()
         
-        # O EXPANDER QUE VOCÊ RECLAMOU (AGORA TRADUZINDO TUDO)
+        # A CORREÇÃO DEFINITIVA: O conteúdo do expansor agora busca as chaves traduzidas dinamicamente
         with st.expander(L["prov_title"], expanded=False):
-            st.write(L["prov_info"])
-            st.markdown(L["cat_list"])
+            st.write(L["prov_info"])    # Linha traduzida
+            st.markdown(L["cat_list"])  # Lista traduzida (caso deseje traduzir nomes)
             st.divider()
-            st.caption(L["prov_warn"])
+            st.caption(L["prov_warn"]) # Aviso traduzido
             
         st.divider()
         if st.button("⬅️ Idioma / Language", use_container_width=True):
             st.session_state['idioma_selecionado'] = None
             st.rerun()
 
-    # Título e Abas Principais
     st.title(L["title"])
     aba1, aba2, aba3, aba4 = st.tabs([L["tab1"], L["tab2"], L["tab3"], L["tab4"]])
 
