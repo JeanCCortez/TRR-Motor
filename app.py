@@ -92,7 +92,7 @@ LANG = {
         "r_peri": "Pericentro (kpc)", "r_apo": "Apocentro (kpc)",
         "calc": "🚀 Procesar Auditoría TRR", "clear": "🧹 Limpiar Todo",
         "pdf_btn": "📄 Descargar Reporte (PDF)", "details": "📚 Ver Informe Técnico",
-        "precision": "Precisión Empirica", "precision_red": "Convergencia Matemática", "g_bar": "Física Clásica", "g_trr": "Predicción TRR", "g_obs": "Telescopio",
+        "precision": "Precisión Empírica", "precision_red": "Convergencia Matemática", "g_bar": "Física Clásica", "g_trr": "Predicción TRR", "g_obs": "Telescopio",
         "info_dyn": "💡 La TRR calcula la fricción topológica del vacío para predecir la rotación sin Materia Oscura.",
         "info_opt": "💡 La TRR aplica el Índice de Refracción Temporal para amplificar el desvío gravitacional.",
         "info_red": "💡 La TRR itera la masa bariónica total para predecir el espacio-tiempo de la fuente.",
