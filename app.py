@@ -115,7 +115,7 @@ LANG = {
         "cat_list": "* SDSS DR16Q\n* SPARC (CWRU)\n* SLACS Survey\n* ESA Gaia\n* JWST/MAST\n* LIGO/Virgo",
         "rad": "Rayon (kpc)", "vobs": "Vitesse Télescope", "vgas": "Vitesse Gaz", "vdisk": "Vitesse Disque", "vbulge": "Vitesse Bulbe",
         "zl": "Redshift Lentille", "zs": "Redshift Source", "mest": "Masse Photométrique", "theta": "Anneau Einstein", "cluster": "Amas Géant?",
-        "r_peri": "Péricentre (kpc)", "r_apo": "Apocentre (kpc)",
+        "r_peri": "Péricentre (kpc)", "r_apo": "Apocentro (kpc)",
         "calc": "🚀 Lancer l'Audit TRR", "clear": "🧹 Tout Effacer",
         "pdf_btn": "📄 Télécharger le Rapport (PDF)", "details": "📚 Voir le Rapport Technique",
         "precision": "Précision Empirique", "precision_red": "Convergence Mathématique", "g_bar": "Physique Classique", "g_trr": "Prédiction TRR", "g_obs": "Télescope",
@@ -297,7 +297,7 @@ def criar_grafico_stream(raios, arrasto, cisalhamento, limite):
     ax1.plot(raios, arrasto, color='#2980b9', label="Viscous Drag")
     ax2.plot(raios, cisalhamento, color='#8e44ad', label="Viscous Shear")
     ax2.axhline(y=limite, color='#e74c3c', linestyle='--')
-    ax2.fill_between(raios, cisalhamento, limite, where=(cisalhamento >= limite), color='#e74c3c', alpha=0.4)
+    ax2.fill_between(raios, cisalhamento, limite, where=(np.array(cisalhamento) >= limite), color='#e74c3c', alpha=0.4)
     plt.tight_layout()
     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
         fig.savefig(tmp.name, dpi=150)
@@ -400,8 +400,13 @@ else:
     # --- ABA 1: DINÂMICA ---
     with aba1:
         st.info(L["info_dyn"])
-        c1, c2 = st.columns(2); rad = c1.number_input(L["rad"], min_value=0.0, key="d_rad"); v_obs = c2.number_input(L["vobs"], min_value=0.0, key="d_vobs")
-        v_gas = st.number_input(L["vgas"], key="d_vgas"); v_disk = st.number_input(L["vdisk"], key="d_vdisk"); v_bulge = st.number_input(L["vbulge"], key="d_vbulge")
+        c1, c2 = st.columns(2)
+        rad = c1.number_input(L["rad"], min_value=0.0, key="d_rad")
+        v_obs = c2.number_input(L["vobs"], min_value=0.0, key="d_vobs")
+        v_gas = st.number_input(L["vgas"], key="d_vgas")
+        v_disk = st.number_input(L["vdisk"], key="d_vdisk")
+        v_bulge = st.number_input(L["vbulge"], key="d_vbulge")
+        
         if st.button(L["calc"], type="primary", key="b1"):
             if rad > 0 and v_obs > 0:
                 melhor_erro, melhor_v, v_bar = float('inf'), 0, 0
@@ -410,50 +415,134 @@ else:
                     g_b = (v_sq * 1e6) / (rad * 3.086e19)
                     g_t = (g_b / (1 - math.exp(-math.sqrt(g_b/A0)))) * (1 + BETA * rad)
                     err = abs((v_obs**2 * 1e6 / (rad * 3.086e19)) - g_t) / (v_obs**2 * 1e6 / (rad * 3.086e19))
-                    if err < melhor_erro: melhor_erro, melhor_v, v_bar = err, math.sqrt((g_t * rad * 3.086e19)/1e6), math.sqrt(v_sq)
+                    if err < melhor_erro: 
+                        melhor_erro, melhor_v, v_bar = err, math.sqrt((g_t * rad * 3.086e19)/1e6), math.sqrt(v_sq)
                 st.session_state['res_dyn'] = {'vtrr': melhor_v, 'prec': max(0, 100-(melhor_erro*100)), 'vbar': v_bar, 'vobs': v_obs}
+                
         if 'res_dyn' in st.session_state:
-            r = st.session_state['res_dyn']; st.success(f"{L['precision']}: {r['prec']:.2f}%")
-            with st.expander(L["details"]): st.info(L["rep_dyn_text"].format(**r))
+            r = st.session_state['res_dyn']
+            st.success(f"{L['precision']}: {r['prec']:.2f}%")
+            with st.expander(L["details"]): 
+                st.info(L["rep_dyn_text"].format(**r))
             st.download_button(L["pdf_btn"], data=gerar_pdf("dyn", r, L), file_name="RRT_Dynamics.pdf", key="d1")
 
     # --- ABA 2: ÓPTICA ---
     with aba2:
         st.info(L["info_opt"])
-        c3, c4 = st.columns(2); zl = c3.number_input(L["zl"], key="o_zl"); zs = c4.number_input(L["zs"], key="o_zs")
-        mest = st.number_input(L["mest"], key="o_mest"); theta = st.number_input(L["theta"], key="o_theta")
+        c3, c4 = st.columns(2)
+        zl = c3.number_input(L["zl"], key="o_zl")
+        zs = c4.number_input(L["zs"], key="o_zs")
+        mest = st.number_input(L["mest"], key="o_mest")
+        theta = st.number_input(L["theta"], key="o_theta")
+        
         if st.button(L["calc"], type="primary", key="b2"):
             if zl > 0 and zs > zl:
                 D_L, D_S, D_LS = calcular_D_A(0, zl), calcular_D_A(0, zs), calcular_D_A(zl, zs)
-                M_kg = mest * 1e11 * M_SOL; t_bar_rad = math.sqrt((4*G*M_kg/C**2) * (D_LS/(D_L*D_S)))
-                etac = 1.0 + BETA * math.log(1+zl); t_trr = t_bar_rad * etac * 206264.806; err = abs(theta - t_trr)/theta
+                M_kg = mest * 1e11 * M_SOL
+                t_bar_rad = math.sqrt((4*G*M_kg/C**2) * (D_LS/(D_L*D_S)))
+                etac = 1.0 + BETA * math.log(1+zl)
+                t_trr = t_bar_rad * etac * 206264.806
+                err = abs(theta - t_trr)/theta
                 st.session_state['res_opt'] = {'ttrr': t_trr, 'prec': max(0, 100-err*100), 'tbar': t_bar_rad*206264.806, 'tobs': theta, 'etac': etac}
+                
         if 'res_opt' in st.session_state:
-            r = st.session_state['res_opt']; st.success(f"{L['precision']}: {r['prec']:.2f}%")
+            r = st.session_state['res_opt']
+            st.success(f"{L['precision']}: {r['prec']:.2f}%")
             st.download_button(L["pdf_btn"], data=gerar_pdf("opt", r, L), file_name="RRT_Optics.pdf", key="d2")
 
     # --- ABA 3: REDSHIFT ---
     with aba3:
         st.info(L["info_red"])
-        r_zl = st.number_input(L["zl"], key="r_zl"); r_mest = st.number_input(L["mest"], key="r_mest"); r_theta = st.number_input(L["theta"], key="r_theta")
+        r_zl = st.number_input(L["zl"], key="r_zl")
+        r_mest = st.number_input(L["mest"], key="r_mest")
+        r_theta = st.number_input(L["theta"], key="r_theta")
+        
         if st.button(L["calc"], type="primary", key="b3"):
-            if r_zl > 0:
-                z_test = np.linspace(r_zl+0.1, 5.0, 100); r_D_L = calcular_D_A(0, r_zl); r_M = r_mest * 1e11 * M_SOL; best_z, min_err = 0, float('inf')
+            if r_zl > 0 and r_theta > 0:
+                z_test = np.linspace(r_zl + 0.1, 5.0, 100)
+                r_D_L = calcular_D_A(0, r_zl)
+                r_M = r_mest * 1e11 * M_SOL
+                
+                best_z, min_err = 0, float('inf')
+                t_class_arr = []
+                t_trr_arr = []
+                
+                # Cálculo orgânico para o gráfico
                 for z in z_test:
-                    r_D_S, r_D_LS = calcular_D_A(0, z), calcular_D_A(r_zl, z); t_b = math.sqrt((4*G*r_M/C**2) * (r_D_LS/(r_D_L*r_D_S))); t_t = t_b * (1.0 + BETA * math.log(1+r_zl)) * 206264.806; err = abs(r_theta - t_t)
-                    if err < min_err: min_err, best_z = err, z
-                st.session_state['res_red'] = {'zs_pred': best_z, 'prec': 99.8, 'tobs': r_theta, 'z_vals': z_test, 't_class': z_test*0.1, 't_trr': z_test*0.15}
+                    r_D_S = calcular_D_A(0, z)
+                    r_D_LS = calcular_D_A(r_zl, z)
+                    
+                    # Einstein clássico (radianos para arcsec)
+                    t_b_rad = math.sqrt((4 * G * r_M / C**2) * (r_D_LS / (r_D_L * r_D_S)))
+                    t_b_arcsec = t_b_rad * 206264.806
+                    
+                    # TRR com arrasto de fase (etac)
+                    etac = 1.0 + BETA * math.log(1 + r_zl)
+                    t_t_arcsec = t_b_arcsec * etac
+                    
+                    t_class_arr.append(t_b_arcsec)
+                    t_trr_arr.append(t_t_arcsec)
+                    
+                    # Erro relativo
+                    err = abs(r_theta - t_t_arcsec) / r_theta
+                    if err < min_err: 
+                        min_err = err
+                        best_z = z
+                
+                precisao_real = max(0.0, 100.0 - (min_err * 100.0))
+                
+                st.session_state['res_red'] = {
+                    'zs_pred': best_z, 
+                    'prec': precisao_real, 
+                    'tobs': r_theta, 
+                    'z_vals': z_test, 
+                    't_class': t_class_arr, 
+                    't_trr': t_trr_arr
+                }
+                
         if 'res_red' in st.session_state:
-            r = st.session_state['res_red']; st.success(f"{L['pred_zs']}: {r['zs_pred']:.4f}")
+            r = st.session_state['res_red']
+            st.success(f"{L['pred_zs']}: {r['zs_pred']:.4f} (Precisão: {r['prec']:.2f}%)")
             st.download_button(L["pdf_btn"], data=gerar_pdf("red", r, L), file_name="RRT_Redshift.pdf", key="d3")
 
     # --- ABA 4: STREAMS ---
     with aba4:
         st.info(L["info_str"])
-        s_p = st.number_input(L["r_peri"], key="s_p"); s_a = st.number_input(L["r_apo"], key="s_a"); s_m = st.number_input(L["mest"], key="s_m")
+        s_p = st.number_input(L["r_peri"], key="s_p", min_value=0.1)
+        s_a = st.number_input(L["r_apo"], key="s_a", min_value=0.1)
+        s_m = st.number_input(L["mest"], key="s_m", min_value=0.1)
+        
         if st.button(L["calc"], type="primary", key="b4"):
-            if s_p > 0:
-                st.session_state['res_str'] = {'raios': np.linspace(s_p, s_a, 100), 'arrasto': np.random.rand(100), 'cisal': np.random.rand(100), 'limite': 0.75, 'has_gap': True, 'gap_start': s_p+1, 'gap_end': s_p+2}
+            if s_a > s_p > 0:
+                # Substituição de rand() por física orgânica:
+                # O arrasto viscoso acumula-se com a distância (BETA * r)
+                # O cisalhamento tem picos na zona de maior aceleração (pericentro)
+                raios_arr = np.linspace(s_p, s_a, 100)
+                arrasto_arr = [BETA * (r / s_p) for r in raios_arr]
+                cisal_arr = [BETA * s_m * (s_a / r)**2 for r in raios_arr] 
+                
+                limite_critico = 0.05 * s_m # Limite hipotético baseado na massa
+                
+                has_gap = any(c > limite_critico for c in cisal_arr)
+                # Encontra a coordenada exata de ruptura
+                idx_gap = np.argmax(np.array(cisal_arr) > limite_critico)
+                gap_start = raios_arr[idx_gap] if has_gap else 0
+                gap_end = gap_start + 0.5 if has_gap else 0
+                
+                st.session_state['res_str'] = {
+                    'raios': raios_arr, 
+                    'arrasto': arrasto_arr, 
+                    'cisal': cisal_arr, 
+                    'limite': limite_critico, 
+                    'has_gap': has_gap, 
+                    'gap_start': gap_start, 
+                    'gap_end': gap_end
+                }
+                
         if 'res_str' in st.session_state:
-            r = st.session_state['res_str']; st.success(L["loc_gap"])
+            r = st.session_state['res_str']
+            if r['has_gap']:
+                st.success(f"{L['loc_gap']}: {r['gap_start']:.1f} - {r['gap_end']:.1f} kpc")
+            else:
+                st.warning(L["no_gap"])
             st.download_button(L["pdf_btn"], data=gerar_pdf("str", r, L), file_name="RRT_Streams.pdf", key="d4")
